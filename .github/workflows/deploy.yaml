@@ -7,8 +7,11 @@ on:
         description: 'Tag version to deploy'
         required: true
 
+permissions:
+  issues: write  # for manual approval to create an issue
+
 jobs:
-  discord:
+  send-issue-to-discord:
     name: discord
     runs-on: ubuntu-latest
     steps:
@@ -16,14 +19,15 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_USER: ${{github.actor}}
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
-          curl -X POST -H "Content-Type: application/json" -d "{\"content\":\"Workflow URL: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\"}" $DISCORD_WEBHOOK_URL
+          curl -X POST -H "Content-Type: application/json" -d "{\"content\":\"Workflow URL: https://github.com/${GITHUB_REPOSITORY}/issues\"}" $DISCORD_WEBHOOK_URL
 
   deploy:
     name: deploy
     runs-on: ubuntu-latest
-    needs: discord
+    needs: send-issue-to-discord
     steps:
       - name: Wait for Approval
         uses: trstringer/manual-approval@v1
