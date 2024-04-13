@@ -14,8 +14,7 @@ permissions:
   contents: read    # This is required for actions/checkout
 
 jobs:
-
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
