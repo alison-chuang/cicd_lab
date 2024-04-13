@@ -29,6 +29,10 @@ jobs:
           pip install flake8
           flake8 --max-line-length 100 .
 
+      # https://github.com/orgs/community/discussions/25010#discussioncomment-3246191
+      - name: set pythonpath
+        run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+
       - name: Test with pytest
         if: steps.changed-files.outputs.all_changed_files != 'README.md'
         run: pytest
