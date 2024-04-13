@@ -47,4 +47,5 @@ jobs:
         run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
       - name: Test with pytest
+        if: steps.changed-files.outputs.all_changed_files != 'README.md'
         run: pytest
