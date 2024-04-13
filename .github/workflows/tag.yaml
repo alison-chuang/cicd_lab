@@ -6,8 +6,12 @@ on:
       - '*'
 
 env:
-  $REPOSITORY: ${{ github.event.repository.name }}
+  REPOSITORY: ${{ github.event.repository.name }}
   IMAGE_TAG: ${{ github.ref_name }}
+
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
 
 jobs:
 
@@ -37,8 +41,6 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         role-to-assume: arn:aws:iam::498556244344:role/github-runner-role
         aws-region: us-east-1
 
@@ -59,7 +61,7 @@ jobs:
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       with:
-        image-ref: '$REGISTRY/$REPOSITORY:$IMAGE_TAG'
+        image-ref: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         exit-code: '1'
         ignore-unfixed: true
         vuln-type: 'os,library'
