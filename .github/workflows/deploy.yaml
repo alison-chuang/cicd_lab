@@ -50,8 +50,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::498556244344:role/github-runner-role
-          aws-region: us-east-1
+          role-to-assume: ${{ vars.RUNNER_IAM_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -59,24 +59,24 @@ jobs:
 
       - name: Update KubeConfig
         run: |
-          aws eks update-kubeconfig --region us-east-1 --name m6-cluster
-
-      # - name: deploy to EKS
-      #   env:
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     ECR_REPOSITORY: ${{ github.event.repository.name }}
-      #     IMAGE_TAG: ${{ github.event.inputs.tag }}
-      #     DEPLOYMENT_NAME: m6-app-deployment
-      #     CONTAINER_NAME: m6-app-container
-      #   run: |
-      #     kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      #     kubectl rollout status deployment/$DEPLOYMENT_NAME
+          aws eks update-kubeconfig --region ${{ vars.AWS_REGION }} --name m6-cluster
 
       - name: Deploy to EKS
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ github.event.repository.name }}
+          IMAGE_TAG: ${{ github.event.inputs.tag }}
+          DEPLOYMENT_NAME: m6-app-deployment
+          CONTAINER_NAME: m6-app-container
         run: |
-          helm upgrade --install m6-app \
-            ./manifest/templates/deployment.yaml \
-            --set app.image.registry=${{ steps.login-ecr.outputs.registry }} \
-            --set app.image.repository=${{ github.event.repository.name }} \
-            --set app.image.tag=${{ github.event.inputs.tag }} \
-            --debug
+          kubectl set image deployment/$DEPLOYMENT_NAME $CONTAINER_NAME=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl rollout status deployment/$DEPLOYMENT_NAME
+
+      # - name: Deploy to EKS via Helm
+      #   run: |
+      #     helm upgrade --install m6-app \
+      #       ./manifest/templates/deployment.yaml \
+      #       --set app.image.registry=${{ steps.login-ecr.outputs.registry }} \
+      #       --set app.image.repository=${{ github.event.repository.name }} \
+      #       --set app.image.tag=${{ github.event.inputs.tag }} \
+      #       --debug
