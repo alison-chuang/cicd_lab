@@ -75,7 +75,7 @@ jobs:
       # - name: Deploy to EKS via Helm
       #   run: |
       #     helm upgrade --install m6-app \
-      #       ./manifest/templates/deployment.yaml \
+      #       ./manifest/templates/app-deployment.yaml \
       #       --set app.image.registry=${{ steps.login-ecr.outputs.registry }} \
       #       --set app.image.repository=${{ github.event.repository.name }} \
       #       --set app.image.tag=${{ github.event.inputs.tag }} \

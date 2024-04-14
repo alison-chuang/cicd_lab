@@ -17,8 +17,8 @@ spec:
       serviceAccountName: github-runner-serviceaccount
       containers:
       - name: m6-app-container
-        # image: {{ .Values.app.image.registry }}/{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}
-        image: 498556244344.dkr.ecr.us-east-1.amazonaws.com/cicd_lab:v0.1.2
+        image: "{{ .Values.app.image.registry }}/{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+        # image: 498556244344.dkr.ecr.us-east-1.amazonaws.com/cicd_lab:v0.1.2
         imagePullPolicy: Always
         ports:
         - containerPort: 5050
