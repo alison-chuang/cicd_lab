@@ -1,0 +1,28 @@
+name: Terraform CI - Push
+
+on:
+  push:
+    branches:
+      - task-6-2
+  workflow_dispatch:
+
+jobs:
+  validate:
+    defaults:
+      run:
+        working-directory: "tasks/task-6-2/src"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate

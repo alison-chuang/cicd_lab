@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# This cluster role binding allows user "github-oidc-auth-user" to perform any operation in any namespace.
+kind: ClusterRoleBinding
+metadata:
+  name: github-oidc-cluster-role-binding
+subjects:
+- kind: ServiceAccount
+  name: helm-serviceaccount
+  apiGroup: rbac.authorization.k8s.io
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: github-oidc-cluster-role
+  apiGroup: rbac.authorization.k8s.io
