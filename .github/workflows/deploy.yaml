@@ -24,7 +24,15 @@ jobs:
           GITHUB_USER: ${{github.actor}}
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
-          curl -X POST -H "Content-Type: application/json" -d "{\"content\":\"Workflow URL: https://github.com/${GITHUB_REPOSITORY}/issues\"}" $DISCORD_WEBHOOK_URL
+          curl -X POST \
+              -H "Content-Type: application/json" \
+              -d "$( cat <<EOF
+          {
+            "content": "Workflow URL: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          }
+          EOF
+          )" \
+          $DISCORD_WEBHOOK_URL
 
   manual-approval:
     name: manual approval the deployment
