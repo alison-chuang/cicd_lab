@@ -1,3 +1,8 @@
 # README
 ## Set up pipeline
-Merge test
+
+manual approval to create an issue 要加上
+```yaml
+permissions: 
+  issues: write
+```
