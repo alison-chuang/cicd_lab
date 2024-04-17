@@ -2,6 +2,7 @@ name: Terraform CI - PR
 
 on:
   pull_request:
+    types: [opened, reopened]
     branches:
       - main
 
@@ -32,6 +33,12 @@ jobs:
         id: validate
         run: terraform validate
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.RUNNER_IAM_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
+
       - name: Terraform Plan
         id: plan
         run: terraform plan
@@ -39,7 +46,7 @@ jobs:
 
       - name: Comment Terraform Plan in Pr Description
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' &&  github.event_name == 'reopened'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
