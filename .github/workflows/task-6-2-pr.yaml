@@ -2,7 +2,6 @@ name: Terraform CI - PR
 
 on:
   pull_request:
-    types: [opened, reopened]
     branches:
       - main
 
@@ -41,14 +40,13 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan
-        continue-on-error: true
+        run: terraform plan -no-color
 
       - name: Comment Terraform Plan in Pr Description
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request' &&  github.event_name == 'reopened'
+        if: github.event_name == 'pull_request'
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PAT }}
           script: |
             let body = `#### Terraform Plan
             \`\`\`
