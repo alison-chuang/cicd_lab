@@ -1,20 +1,29 @@
+# repos:
+# - repo: https://github.com/pre-commit/pre-commit-hooks
+#   rev: v2.3.0
+#   hooks:
+#   - id: check-yaml
+#     args: [--allow-multiple-documents]
+#   - id: end-of-file-fixer
+#   - id: trailing-whitespace
+# - repo: https://github.com/psf/black
+#   rev: 22.10.0
+#   hooks:
+#   - id: black
+#     exclude: README.md
+# - repo: https://github.com/PyCQA/flake8
+#   rev: 5.0.4
+#   hooks:
+#     - id: flake8
+#       exclude: README.md
+#       args:
+#         - --max-line-length=100
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.3.0
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: v1.89.0
   hooks:
-  - id: check-yaml
-    args: [--allow-multiple-documents]
-  - id: end-of-file-fixer
-  - id: trailing-whitespace
-- repo: https://github.com/psf/black
-  rev: 22.10.0
-  hooks:
-  - id: black
-    exclude: README.md
-- repo: https://github.com/PyCQA/flake8
-  rev: 5.0.4
-  hooks:
-    - id: flake8
-      exclude: README.md
-      args:
-        - --max-line-length=100
+    - id: terraform_fmt
+      files: tasks/task-6-2/src/.
+    - id: terraform_docs
+      files: tasks/task-6-2/src/.
+      
