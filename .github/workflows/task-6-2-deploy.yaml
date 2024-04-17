@@ -1,27 +1,55 @@
 name: Terraform CI - Deploy
 
 on:
-  pull_request:
+  push:
     branches:
-      - task-6-2
+      - main
+      - dev
+  workflow_dispatch:
 
 permissions:
   id-token: write   # This is required for requesting the JWT
   contents: read    # This is required for actions/checkout
+
 jobs:
-  pr:
-    defaults:
-      run:
-        working-directory: "tasks/task-6-2/src"
+  send-issue-to-discord:
     runs-on: ubuntu-latest
     steps:       
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Send Workflow URL to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_USER: ${{github.actor}}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" -d "{\"content\":\"Workflow URL: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${{ github.run_id }}"}" $DISCORD_WEBHOOK_URL
+
+  manual-approval:
+    name: manual approval the deployment
+    runs-on: ubuntu-latest
+    needs: send-issue-to-discord
+    steps:
+      - name: Wait for Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: alison-chuang
+          minimum-approvals: 1
+          exclude-workflow-initiator-as-approver: false
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: manual-approval
+    defaults:
+      run:
+        working-directory: 'task-6-2/terraform'
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-        with:
-            terraform_version: '1.6.6'
 
       - name: Terraform Init
         id: init
@@ -31,25 +59,16 @@ jobs:
         id: validate
         run: terraform validate
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.RUNNER_IAM_ROLE }}
+          aws-region: ${{ vars.AWS_REGION }}
+
       - name: Terraform Plan
         id: plan
-        run: terraform plan
-        continue-on-error: true
+        run: terraform plan -no-color
 
-      - name: Comment Terraform Plan in Pr Description
-        uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            let body = `#### Terraform Plan
-            \`\`\`
-            ${{ steps.plan.outputs.stdout }}
-            \`\`\`
-            `;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
+      - name: Terraform Apply
+        if: success()
+        run: terraform apply -auto-approve -no-color
