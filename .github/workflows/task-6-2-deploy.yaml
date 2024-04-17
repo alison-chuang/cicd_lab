@@ -43,7 +43,7 @@ jobs:
     needs: manual-approval
     defaults:
       run:
-        working-directory: 'task-6-2/terraform'
+        working-directory: "tasks/task-6-2/src"
     
     steps:
       - name: Checkout Code
