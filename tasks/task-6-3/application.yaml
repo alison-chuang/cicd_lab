@@ -7,8 +7,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/alison-chuang/cicd_lab.git
-    targetRevision: task-6-3
-    path: tasks/task-6-3
+    targetRevision: dev
+    path: tasks/task-6-3/dev
 
   destination:
     server: https://kubernetes.default.svc
