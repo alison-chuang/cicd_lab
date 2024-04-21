@@ -1,0 +1,33 @@
+name: Argo - Validate Kubernetes Resources
+
+on:
+  push:
+    branches:
+      - task-6-3
+      - dev
+      - main
+  pull_request:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+env:
+  CONFTEST_VERSION: 0.51.0
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Lint yaml files
+      uses: ibiqlik/action-yamllint@v3
+      with:
+        file_or_dir: tasks/task-6-3/dev/*.yaml
+    - name: Install conftest
+      run: |
+        wget -O - 'https://github.com/open-policy-agent/conftest/releases/download/v${{ env.CONFTEST_VERSION }}/conftest_${{ env.CONFTEST_VERSION }}_Linux_x86_64.tar.gz' | tar zxvf -
+        ./conftest --version
+    - name: Run conftest
+      run: ./conftest test tasks/task-6-3
